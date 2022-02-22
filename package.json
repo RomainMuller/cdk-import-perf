@@ -1,0 +1,11 @@
+{
+  "private": true,
+  "dependencies": {
+    "aws-cdk": "^2"
+  },
+  "workspaces": {
+    "packages": [
+      "apps/javascript"
+    ]
+  }
+}

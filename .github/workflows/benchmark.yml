@@ -1,0 +1,98 @@
+name: Benchark
+
+on: workflow_dispatch
+
+jobs:
+  main:
+    runs-on: ubuntu-latest
+    steps:
+      # Install ZSH
+      - name: Install zsh
+        run: sudo apt update && sudo apt install -y zsh
+      # Check out source
+      - name: Check out
+        uses: actions/checkout@v2
+      # Set up runtimes
+      - name: Set up node
+        uses: actions/setup-node@v2
+        with:
+          cache: yarn
+          node-version: 16
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v1
+        with:
+          dotnet-version: 6.0.x
+      - name: Set up Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: '1.17'
+      - name: Set up Java
+        uses: actions/setup-java@v2
+        with:
+          cache: maven
+          distribution: temurin
+          java-version: '8'
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          cache: 'pip'
+          python-version: 3.x
+      # Prepare packages
+      - name: Prepare JavaScript
+        run: yarn install && yarn upgrade
+        working-directory: apps/javascript
+      - name: Prepare C#
+        run: dotnet build Main.csproj
+        working-directory: apps/csharp
+      - name: Prepare Go
+        run: go mod tidy && go get -u
+        working-directory: apps/go
+      - name: Prepare Java
+        run: mvn package
+        working-directory: apps/java
+      - name: Prepare Python
+        run: |-
+          python -m venv .env
+          source .env/bin/activate
+          pip install -r requirements.txt
+        working-directory: apps/python
+      # Measure runtimes
+      - name: Measure JavaScript
+        id: measure-javascript
+        run: |-
+          echo "::set-output name=time::$({ time ${{ github.workspace }}/node_modules/.bin/cdk ls > /dev/null } 2>&1 | cut -d'>' -f2)"
+        shell: zsh {0}
+        working-directory: apps/javascript
+      - name: Measure C#
+        id: measure-csharp
+        run: |-
+          echo "::set-output name=time::$({ time ${{ github.workspace }}/node_modules/.bin/cdk ls > /dev/null } 2>&1 | cut -d'>' -f2)"
+        shell: zsh {0}
+        working-directory: apps/csharp
+      - name: Measure Go
+        id: measure-go
+        run: |-
+          echo "::set-output name=time::$({ time ${{ github.workspace }}/node_modules/.bin/cdk ls > /dev/null } 2>&1 | cut -d'>' -f2)"
+        shell: zsh {0}
+        working-directory: apps/go
+      - name: Measure Java
+        id: measure-java
+        run: |-
+          echo "::set-output name=time::$({ time ${{ github.workspace }}/node_modules/.bin/cdk ls > /dev/null } 2>&1 | cut -d'>' -f2)"
+        shell: zsh {0}
+        working-directory: apps/java
+      - name: Measure Python
+        id: measure-python
+        run: |-
+          source .env/bin/activate
+          echo "::set-output name=time::$({ time ${{ github.workspace }}/node_modules/.bin/cdk ls > /dev/null } 2>&1 | cut -d'>' -f2)"
+        shell: zsh {0}
+        working-directory: apps/python
+      # Create report
+      - name: Final Report
+        run: |-
+          echo "JavaScript => ${{ steps.measure-javascript.outputs.time }}"
+          echo "C#         => ${{ steps.measure-csharp.outputs.time }}"
+          echo "Go         => ${{ steps.measure-go.outputs.time }}"
+          echo "Java       => ${{ steps.measure-java.outputs.time }}"
+          echo "Python     => ${{ steps.measure-python.outputs.time }}"

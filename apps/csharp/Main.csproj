@@ -1,0 +1,12 @@
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://schemas.microsoft.com/developer/msbuild/2003 https://github.com/dotnet/msbuild/raw/main/src/MSBuild/MSBuild/Microsoft.Build.CommonTypes.xsd" Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+    <RollForward>Major</RollForward>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Amazon.CDK.Lib" Version="[2.0.0,3)" />
+    <PackageReference Include="Constructs" Version="[10.0.0,11)" />
+  </ItemGroup>
+</Project>
